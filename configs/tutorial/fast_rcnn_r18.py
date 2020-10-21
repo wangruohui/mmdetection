@@ -1,37 +1,32 @@
 # model settings
 model = dict(
     type="FastRCNN",
-    pretrained="torchvision://resnet50",
+    pretrained="torchvision://resnet18",
     backbone=dict(
         type="ResNet",
-        depth=50,
+        depth=18,
         num_stages=4,
-        out_indices=(0, 1, 2, 3),
+        out_indices=(3,),
         frozen_stages=1,
         norm_cfg=dict(type="BN", requires_grad=True),
         norm_eval=True,
         style="pytorch",
     ),
-    neck=dict(
-        type="FPN",
-        in_channels=[256, 512, 1024, 2048],
-        out_channels=256,
-        num_outs=5,
-    ),
+    neck=None,
     roi_head=dict(
         type="StandardRoIHead",
         bbox_roi_extractor=dict(
             type="SingleRoIExtractor",
-            roi_layer=dict(type="RoIAlign", output_size=7, sampling_ratio=0),
-            out_channels=256,
-            featmap_strides=[4, 8, 16, 32],
+            roi_layer=dict(type="RoIPool", output_size=7),
+            out_channels=512,
+            featmap_strides=[32],
         ),
         bbox_head=dict(
             type="Shared2FCBBoxHead",
-            in_channels=256,
+            in_channels=512,
             fc_out_channels=1024,
             roi_feat_size=7,
-            num_classes=80,
+            num_classes=20,
             bbox_coder=dict(
                 type="DeltaXYWHBBoxCoder",
                 target_means=[0.0, 0.0, 0.0, 0.0],
